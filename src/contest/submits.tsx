@@ -20,12 +20,12 @@ const toSeconds = (ms) => Math.floor(ms / 1000);
 
 const buildVerdictRow = (result: SubmissionResult) => {
   const { verdict, testsPassed } = result;
-  const short = Verdict.short(verdict);
+  const localizedVerdict = Verdict.rus(verdict) || Verdict.short(verdict);
   const testsPassedStr = testsPassed || testsPassed === 0
-    ? ` тест ${testsPassed}`
+    ? ` на тесте ${testsPassed + 1}`
     : '';
 
-  return short + testsPassedStr;
+  return localizedVerdict + testsPassedStr;
 }
 
 const Submits = ({ submissions, enhance }: ISubmitProps) => {
@@ -64,7 +64,7 @@ const Submits = ({ submissions, enhance }: ISubmitProps) => {
                   <TableCell>
                     {toMB(submission.result.memoryUsed)} из {toMB(submission.problem.memoryLimitBytes)} MB
                       <br />
-                    {submission.result.timeUsed} мс из {toSeconds(submission.problem.timeLimitMillis)} сек.
+                    {submission.result.timeUsed || 0} мс из {toSeconds(submission.problem.timeLimitMillis)} сек.
                   </TableCell>
                 </TableRow>
               ))

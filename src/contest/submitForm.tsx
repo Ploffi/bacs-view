@@ -24,7 +24,7 @@ interface ISubmitState {
   status: SentStatus;
 }
 
-const avaliableLanguages: string[] = Object.keys(Language).map(key => Language[key]);
+const availableLanguages: string[] = Object.keys(Language).map(key => Language[key]);
 
 enum SentStatus {
   Initial,
@@ -88,7 +88,7 @@ class SubmitForm extends React.Component<ISubmitProps, ISubmitState> {
             name={'language'}
             onChange={this.handleChange}
             selectedValue={language || ''}
-            values={avaliableLanguages}
+            values={availableLanguages}
           />
         </FormGroup>
         <textarea
