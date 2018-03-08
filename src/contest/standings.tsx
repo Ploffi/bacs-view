@@ -36,7 +36,7 @@ const Standings = (props: IStandingsProps) => {
               problems.map(problem => <TableCell key={problem.index}> {problem.index} </TableCell>)
             }
             <TableCell> Решено задач </TableCell>
-            <TableCell> Время </TableCell>
+            <TableCell> Штраф </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -66,7 +66,7 @@ const Standings = (props: IStandingsProps) => {
                     })
                   }
                   <TableCell>{row.solvedCount}</TableCell>
-                  <TableCell>{formatMinutes(row.penalty)}</TableCell>
+                  <TableCell>{row.penalty}</TableCell>
                 </TableRow>
               ))
           }
