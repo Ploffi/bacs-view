@@ -22,7 +22,6 @@ const styles: StyleRules = {
 
   contestListWrapper: {
     padding: '15px 20px',
-    backgroundColor: '#A0BDCB',
   },
 };
 

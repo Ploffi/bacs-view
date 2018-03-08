@@ -12,7 +12,7 @@ interface IContestInfoEditorProps {
   classes?: any;
 }
 
-const substringToDateAndTime = (dateInISO: string) => [dateInISO.substring(0, 10), dateInISO.substring(11, 19)];
+const substringToDateAndTime = (dateInISO: string) => [dateInISO.substring(0, 10), dateInISO.substring(11, 16)];
 const combainDate = (date: string, time: string) => date + 'T' + time;
 
 class ContestInfoEditor extends React.Component<IContestInfoEditorProps, any> {
@@ -90,7 +90,7 @@ class ContestInfoEditor extends React.Component<IContestInfoEditorProps, any> {
         />
         <TextField
           name='startTime'
-          type='time'
+          type='time'         
           onChange={this.handleChange}
           value={startTime}
           label='Время начала'
@@ -98,14 +98,14 @@ class ContestInfoEditor extends React.Component<IContestInfoEditorProps, any> {
       </FormControl>
       <FormControl className={classes.form}>
         <TextField
-          name='endDate'
+          name='finishTime'
           type='date'
           onChange={this.handleChange}
           value={finishDate}
           label='Дата окончания'
         />
         <TextField
-          name='endTime'
+          name='finishTime'
           type='time'
           onChange={this.handleChange}
           value={finishTime}

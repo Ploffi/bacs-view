@@ -99,7 +99,7 @@ class Login extends React.Component<ILoginProps, ILoginState> {
           !loading
           &&
           <Fragment>
-            <Button variant="raised" disabled={!login} onClick={this.handleLogin} color='primary'>
+            <Button variant='raised' disabled={!login} onClick={this.handleLogin} color='primary'>
               Войти
             </Button>
             <Button onClick={onRegister}>

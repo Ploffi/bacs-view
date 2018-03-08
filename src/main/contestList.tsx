@@ -17,9 +17,15 @@ interface IContestListProps {
   classes?: any;
 }
 
+const boxShadow = '3px 6px 9px 0px rgba(0, 0,0, 0.2)';
 const styles: StyleRules = {
   cardWrapper: {
-    marginBottom: 20,
+    borderLeft: '3px solid #bd0d12',
+    marginBottom: '20px',
+    '-webkit-box-shadow': boxShadow,
+    '-moz-box-shadow': boxShadow,
+    boxShadow: boxShadow,
+    borderRadius: 3,
   },
 
   reload: {
@@ -58,7 +64,7 @@ class ContestList extends React.Component<IContestListProps, IContestListState> 
     const { classes } = this.props;
     return (<div>
       <div>
-        <Typography variant='title' style={{ color: 'white' }}>
+        <Typography variant='title'>
           Список доступных вам контестов:
        </Typography>
       </div>

@@ -4,12 +4,14 @@ import TableCell from 'material-ui/Table/TableCell';
 import TableHead from 'material-ui/Table/TableHead';
 import TableRow from 'material-ui/Table/TableRow';
 import * as React from 'react';
+import Loader from '../common/loader';
 import { ContestProblem, Enhance, ProblemInfo } from '../typings';
 
 interface IProblemTableProps {
   problems: ProblemInfo[];
   enhance?: Enhance<ProblemInfo>[];
   withPaging?: boolean;
+  fetchingPromsie?: Promise<any>;
 }
 
 interface IProblemTableState {
@@ -40,11 +42,11 @@ class ProblemTable extends React.Component<IProblemTableProps, IProblemTableStat
 
   render() {
     const { currentPage, rowsPerPage } = this.state;
-    const { enhance, problems, withPaging } = this.props;
+    const { enhance, problems, withPaging, fetchingPromsie } = this.props;
     const selectedProblems = withPaging
       ? problems.slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage)
       : problems;
-      
+
     return (
       <Table>
         <TableHead>
@@ -65,35 +67,37 @@ class ProblemTable extends React.Component<IProblemTableProps, IProblemTableStat
           </TableRow>
         </TableHead>
         <TableBody>
-          {
-            selectedProblems &&
-            selectedProblems
-              .map((problem, index) => (
-                <TableRow key={index}>
-                  {
-                    enhance &&
-                    enhance.map((en, cellIndex) =>
-                      <TableCell
-                        key={en.key ? en.key(problem) : cellIndex}
-                        style={inlineStyleByEnhance(en)}>
-                        {en.renderCell(problem)}
-                      </TableCell>
-                    )
-                  }
-                  <TableCell>{formatProblemName(problem as ContestProblem)}</TableCell>
-                  <TableCell>
-                    <a href={problem.statementUrl} onClick={(e) => e.stopPropagation()} target='_blank'>
-                      {problem.statementUrl ? 'Условие задачи' : ''}
-                    </a>
-                  </TableCell>
-                  <TableCell>
-                    {toMB(problem.memoryLimitBytes)} MB
+          <Loader promise={fetchingPromsie}>
+            {
+              selectedProblems &&
+              selectedProblems
+                .map((problem, index) => (
+                  <TableRow key={index}>
+                    {
+                      enhance &&
+                      enhance.map((en, cellIndex) =>
+                        <TableCell
+                          key={en.key ? en.key(problem) : cellIndex}
+                          style={inlineStyleByEnhance(en)}>
+                          {en.renderCell(problem)}
+                        </TableCell>
+                      )
+                    }
+                    <TableCell>{formatProblemName(problem as ContestProblem)}</TableCell>
+                    <TableCell>
+                      <a href={problem.statementUrl} onClick={(e) => e.stopPropagation()} target='_blank'>
+                        {problem.statementUrl ? 'Условие задачи' : ''}
+                      </a>
+                    </TableCell>
+                    <TableCell>
+                      {toMB(problem.memoryLimitBytes)} MB
                     <br />
-                    {Math.floor(problem.timeLimitMillis / 1000)} сек.
+                      {Math.floor(problem.timeLimitMillis / 1000)} сек.
                   </TableCell>
-                </TableRow>
-              ))
-          }
+                  </TableRow>
+                ))
+            }
+          </Loader>
         </TableBody>
         <TableFooter>
           {

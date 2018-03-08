@@ -34,6 +34,7 @@ interface IContestBuilderState {
   includeExternal: boolean;
   contestInfo: ContestInfo;
   error: boolean;
+  fetchAllProblemsPromise: Promise<any>;
 }
 
 class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuilderState> {
@@ -53,6 +54,7 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
         problems: [],
         id: null,
       },
+      fetchAllProblemsPromise: null,
       allProblems: new Map(),
       includeExternal: false,
       error: false,
@@ -94,7 +96,7 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
   }
 
   fetchAllProblems = () => {
-    problemsApi.GetProblems(this.state.includeExternal)
+    const fetchAllProblemsPromise = problemsApi.GetProblems(this.state.includeExternal)
       .then(allProblems => {
         const hashes = allProblems.map(p => hashByProblem(p));
         this.setState({
@@ -102,7 +104,10 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
             allProblems.map<[string, ArchiveProblem]>((p, index) => [hashes[index], p])
           )
         });
-      })
+      });
+    this.setState({
+      fetchAllProblemsPromise
+    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -128,7 +133,7 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
       return null;
     }
     const { classes } = this.props;
-    const { contestInfo, allProblems, includeExternal } = this.state;
+    const { contestInfo, allProblems, includeExternal, fetchAllProblemsPromise } = this.state;
     const contestProblemsNamesSet = new Set(contestInfo.problems.map(p => hashByProblem(p)));
     const otherProblems = Array.from(allProblems.values()).filter(p => !contestProblemsNamesSet.has(hashByProblem(p)));
     return (
@@ -169,13 +174,16 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
             />
             <Button onClick={this.fetchAllProblems}>
               Загрузить все задачи (будет больно)
-          </Button>
+            </Button>
           </div>
-          <ProblemTable
-            problems={otherProblems}
-            enhance={this.allProblemsEnhance}
-            withPaging
-          />
+        </div>
+        <div>
+            <ProblemTable
+              problems={otherProblems}
+              enhance={this.allProblemsEnhance}
+              fetchingPromsie={fetchAllProblemsPromise}
+              withPaging
+            />
         </div>
       </Paper >
     );
@@ -261,7 +269,16 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
           value={index}
           onChange={this.handleProblemIndexChange}
         />
-      }
+      },
+    },
+    {
+      title: 'Resourse Id',
+      renderCell: (problem: ArchiveProblem) => {
+        return problem && problem.problemId &&
+          <span>{
+            `${problem.problemId.resourceName}: ${problem.problemId.resourceProblemId}`
+          }</span>
+      },
     },
   ];
 
