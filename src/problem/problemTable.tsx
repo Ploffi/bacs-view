@@ -1,3 +1,4 @@
+import { TextField } from 'material-ui';
 import Table, { TableFooter, TablePagination } from 'material-ui/Table';
 import TableBody from 'material-ui/Table/TableBody';
 import TableCell from 'material-ui/Table/TableCell';
@@ -12,11 +13,13 @@ interface IProblemTableProps {
   enhance?: Enhance<ProblemInfo>[];
   withPaging?: boolean;
   fetchingPromsie?: Promise<any>;
+  withFilter?: boolean;
 }
 
 interface IProblemTableState {
   currentPage: number;
   rowsPerPage: number;
+  nameFilter: string;
 }
 
 const toMB = (byte) => byte / (1024 * 1024) | 0;
@@ -35,21 +38,34 @@ class ProblemTable extends React.Component<IProblemTableProps, IProblemTableStat
   state = {
     currentPage: 0,
     rowsPerPage: defaultRowsPerPage,
+    nameFilter: '',
   }
 
   handlePageChanged = (_, currentPage) => this.setState({ currentPage });
   handleChangeRowsPerPage = (event) => this.setState({ rowsPerPage: event.target.value });
+  handleNameFilterChange = (event) => this.setState({ nameFilter: event.target.value.toLowerCase() });
 
   render() {
-    const { currentPage, rowsPerPage } = this.state;
-    const { enhance, problems, withPaging, fetchingPromsie } = this.props;
+    const { currentPage, rowsPerPage, nameFilter } = this.state;
+    const { enhance, problems, withPaging, fetchingPromsie, withFilter } = this.props;
+    const filtered = withFilter 
+      ? problems.filter(problem => problem.name.toLowerCase().startsWith(nameFilter))
+      : problems; 
     const selectedProblems = withPaging
-      ? problems.slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage)
-      : problems;
+      ? filtered.slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage)
+      : filtered;
 
     return (
       <Table>
         <TableHead>
+          {
+            withFilter &&
+            <TableRow>
+              <TableCell colSpan={8} style={{ textAlign: 'center' }}>
+                <TextField onChange={this.handleNameFilterChange} placeholder='Фильтр по имени' />
+              </TableCell>
+            </TableRow>
+          }
           <TableRow>
             {
               enhance &&

@@ -193,6 +193,7 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
               enhance={this.allProblemsEnhance}
               fetchingPromsie={fetchAllProblemsPromise}
               withPaging
+              withFilter
             />
         </div>
       </Paper >

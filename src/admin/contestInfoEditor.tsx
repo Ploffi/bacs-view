@@ -98,7 +98,7 @@ class ContestInfoEditor extends React.Component<IContestInfoEditorProps, any> {
       </FormControl>
       <FormControl className={classes.form}>
         <TextField
-          name='finishTime'
+          name='finishDate'
           type='date'
           onChange={this.handleChange}
           value={finishDate}
