@@ -1,4 +1,5 @@
 import AddIcon from 'material-ui-icons/Add';
+import DeleteIcon from 'material-ui-icons/Delete';
 import Remove from 'material-ui-icons/Remove';
 import SaveIcon from 'material-ui-icons/Save';
 import Button from 'material-ui/Button';
@@ -128,6 +129,11 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
     });
   }
 
+  deleteContest = () => {
+    contestApi.DeleteContest(this.state.contestInfo.id)
+      .then(() => hashHistory.push('/admin/'));
+  }
+
   render() {
     if (!authService.IsAdmin()) {
       return null;
@@ -146,6 +152,10 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
           <Button onClick={() => this.updateContest(this.state.contestInfo)}>
             <SaveIcon />
             Сохранить общую информацию
+          </Button>
+          <Button disabled={!(this.state.contestInfo && this.state.contestInfo.id)} onClick={this.deleteContest}>
+            <DeleteIcon />
+            Удалить контест
           </Button>
         </div>
         <div>

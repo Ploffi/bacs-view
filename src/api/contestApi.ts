@@ -59,6 +59,10 @@ const contestApi = {
 
   CreateContest(contest: ContestInfo): Promise<any> {
     return axios.post(`contests/`, contest).then(r => r.data);
+  },
+
+  DeleteContest(contestId): Promise<any> {
+    return axios.delete(`contests/${contestId}`);
   }
 }
 
