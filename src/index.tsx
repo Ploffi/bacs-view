@@ -5,9 +5,6 @@ import { AppContainer } from 'react-hot-loader';
 import App from './app/app';
 (global as any).__MUI_SvgIcon__ = SvgIcon;
 
-
-
-
 const rootElement = document.getElementById('react-root');
 const render = Component => {
   ReactDOM.render(
