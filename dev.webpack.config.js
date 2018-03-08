@@ -7,6 +7,7 @@ config.devServer = {
   hot: true,
   inline: true,
   historyApiFallback: true,
+  public: 'http://01e1fd45.ngrok.io/',
 };
 
 config.entry.app.unshift('react-hot-loader/patch');

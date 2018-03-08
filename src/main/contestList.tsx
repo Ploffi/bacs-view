@@ -2,11 +2,11 @@ import Update from 'material-ui-icons/Update';
 import IconButton from 'material-ui/IconButton';
 import { StyleRules } from 'material-ui/styles';
 import withStyles from 'material-ui/styles/withStyles';
-import Typography from 'material-ui/Typography/';
 import * as React from 'react';
 import ContestCard from './contestCard';
 import contestApi from '../api/contestApi';
 import { ContestInfo } from '../typings';
+// import Typography from 'material-ui/Typography/';
 
 interface IContestListState {
   contests: ContestInfo[];
@@ -17,21 +17,6 @@ interface IContestListProps {
   classes?: any;
 }
 
-const boxShadow = '3px 6px 9px 0px rgba(0, 0,0, 0.2)';
-const styles: StyleRules = {
-  cardWrapper: {
-    borderLeft: '3px solid #bd0d12',
-    marginBottom: '20px',
-    '-webkit-box-shadow': boxShadow,
-    '-moz-box-shadow': boxShadow,
-    boxShadow: boxShadow,
-    borderRadius: 3,
-  },
-
-  reload: {
-    marginLeft: '-13px',
-  }
-}
 
 class ContestList extends React.Component<IContestListProps, IContestListState> {
   constructor(props) {
@@ -39,7 +24,6 @@ class ContestList extends React.Component<IContestListProps, IContestListState> 
     this.state = {
       contests: [],
       expandedContestIndx: -1,
-
     }
   }
 
@@ -62,30 +46,52 @@ class ContestList extends React.Component<IContestListProps, IContestListState> 
 
   render() {
     const { classes } = this.props;
-    return (<div>
+    return (<div className={classes.contestListWrapper}>
       <div>
-        <Typography variant='title'>
-          Список контестов:
-       </Typography>
+        <IconButton className={classes.reload} color='secondary' onClick={this.fetchContests}>
+          <Update />
+        </IconButton>
       </div>
-      <IconButton className={classes.reload} color='secondary' onClick={this.fetchContests}>
-        <Update />
-      </IconButton>
-      {
-        this.state.contests &&
-        this.state.contests
-          .map((contest, index) => <div key={contest.id} className={classes.cardWrapper}>
-            <ContestCard
-              isExpanded={this.state.expandedContestIndx === index}
-              contest={contest}
-              onExpand={(event, expand) => this.handleExpandContest(event, expand, index)} />
-          </div>
-          )
-      }
+      <div className={classes.contestList}>
+        {
+          this.state.contests &&
+          this.state.contests
+            .map(
+              (contest, index) => <div key={contest.id} className={classes.cardWrapper}>
+                <ContestCard
+                  isExpanded={this.state.expandedContestIndx === index}
+                  contest={contest}
+                  onExpand={(event, expand) => this.handleExpandContest(event, expand, index)} />
+              </div>
+            )
+        }
+      </div>
     </div>
     )
   }
+}
 
+const boxShadow = '2px 2px 8px rgba(0, 0,0, 0.2)';
+const styles: StyleRules = {
+  contestListWrapper: {
+    display: 'flex',
+  },
+  contestList: {
+    flex: 1,
+  },
+  cardWrapper: {
+    borderLeft: '3px solid #bd0d12',
+    marginBottom: '20px',
+    '-webkit-box-shadow': boxShadow,
+    '-moz-box-shadow': boxShadow,
+    boxShadow: boxShadow,
+    borderRadius: 3,
+  },
+
+  reload: {
+    paddingRight: 20,
+    fontSize: 35,
+  }
 }
 
 export default withStyles(styles)<IContestListProps>(ContestList as any);
