@@ -7,7 +7,7 @@ import * as React from 'react';
 import { Verdict } from './verdict';
 import { formatProblemName } from '../problem/problemTable';
 import { Enhance, Submission, SubmissionResult } from '../typings';
-import Table, {  } from 'material-ui/Table';
+import Table, { } from 'material-ui/Table';
 
 interface ISubmitProps {
   submissions: Submission[];
@@ -28,7 +28,13 @@ const buildVerdictRow = (result: SubmissionResult) => {
   return localizedVerdict + testsPassedStr;
 }
 
+const openSolutionInNewTab = (submission: Submission) => () => {
+  var myWindow = window.open("", "_blank");
+  myWindow.document.write(`<textarea style="width:100%;height:100%">${submission.solution}</textarea>`);
+}
+
 const Submits = ({ submissions, enhance }: ISubmitProps) => {
+  console.log(submissions[4].solution);
   return (
     <Paper>
       <Table>
@@ -49,12 +55,14 @@ const Submits = ({ submissions, enhance }: ISubmitProps) => {
             submissions &&
             submissions
               .map((submission) => (
-                <TableRow key={submission.id}>
+                <TableRow key={submission.id} style={{ cursor: 'pointer' }} onClick={openSolutionInNewTab(submission)}>
                   {
                     enhance &&
                     enhance.map(add => <TableCell>{add.renderCell(submission)}</TableCell>)
                   }
-                  <TableCell>{formatProblemName(submission.problem)}</TableCell>
+                  <TableCell>
+                    {formatProblemName(submission.problem)}
+                  </TableCell>
                   <TableCell>
                     {
                       buildVerdictRow(submission.result)
