@@ -25,7 +25,7 @@ class AllSubmits extends React.Component<IAllSubmitsProps, IAllSubmitsState> {
     super(props);
     this.state = {
       username: '',
-      selectedProblem: null,
+      selectedProblem: '',
     };
     this.enhance = [{
       title: 'Участник',
