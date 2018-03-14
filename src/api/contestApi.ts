@@ -49,7 +49,7 @@ const contestApi = {
   },
 
   GetAllSubmissions(contestId): Promise<Submission[]> {
-    return axios.get(`contests/${contestId}/submissions/`)
+    return axios.get(`/submissions?contestId=${contestId}`)
       .then(response => response.data);
   },
 
