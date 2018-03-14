@@ -1,13 +1,13 @@
 import Paper from 'material-ui/Paper';
 import { StyleRules } from 'material-ui/styles';
 import withStyles from 'material-ui/styles/withStyles';
+import Table from 'material-ui/Table';
 import TableBody from 'material-ui/Table/TableBody';
 import TableCell from 'material-ui/Table/TableCell';
 import TableHead from 'material-ui/Table/TableHead';
 import TableRow from 'material-ui/Table/TableRow';
 import * as React from 'react';
 import { ContestProblem, Standings } from '../typings';
-import Table, {  } from 'material-ui/Table';
 
 
 interface IStandingsProps {
@@ -19,7 +19,7 @@ interface IStandingsProps {
 const formatMinutes = (mins) => {
   const hour = mins / 60 | 0;
   const minutes = mins % 60;
-  return (hour ? hour+':' : '') + minutes;
+  return (hour ? hour + ':' : '') + minutes;
 }
 
 const Standings = (props: IStandingsProps) => {
@@ -33,10 +33,10 @@ const Standings = (props: IStandingsProps) => {
             <TableCell> Место </TableCell>
             <TableCell> Участник </TableCell>
             {
-              problems.map(problem => <TableCell key={problem.index}> {problem.index} </TableCell>)
+              problems.map(problem => <TableCell className={classes.centered} key={problem.index}> {problem.index} </TableCell>)
             }
-            <TableCell> Решено задач </TableCell>
-            <TableCell> Штраф </TableCell>
+            <TableCell numeric> Решено задач </TableCell>
+            <TableCell numeric> Штраф </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -53,20 +53,24 @@ const Standings = (props: IStandingsProps) => {
                       // tslint:disable-next-line:triple-equals
                       const isNotTouched = !result || (!result.solved && result.failTries == 0);
                       const className = isNotTouched ? '' : result.solved ? classes.success : classes.fail;
-                      return <TableCell className={className} key={problem.index}>
+                      return <TableCell padding='dense' className={className + ' ' + classes.centered} key={problem.index}>
                         {
                           result
                           &&
                           <>
-                          <div>{result.failTries}</div>
-                          <div>{formatMinutes(result.solvedAt)}</div>
+                            <div>{(result.solved ? '+' : '-') + result.failTries}</div>
+                            {
+                              !!result.solvedAt
+                              &&
+                              <div>{formatMinutes(Math.abs(result.solvedAt))}</div>
+                            }
                           </>
                         }
                       </TableCell>
                     })
                   }
-                  <TableCell>{row.solvedCount}</TableCell>
-                  <TableCell>{row.penalty}</TableCell>
+                  <TableCell numeric>{row.solvedCount}</TableCell>
+                  <TableCell numeric>{Math.abs(row.penalty)}</TableCell>
                 </TableRow>
               ))
           }
@@ -82,6 +86,10 @@ const styles: StyleRules = {
   },
   fail: {
     backgroundColor: '#ffc9c9',
+  },
+  centered: {
+    textAlign: 'center',
+    fontSize: 15,
   }
 }
 
