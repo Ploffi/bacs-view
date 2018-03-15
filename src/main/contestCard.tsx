@@ -37,8 +37,9 @@ const ContestCard = (props: IContestCardProps) => {
   const start = new Date(contest.startTime);
   const finish = new Date(contest.finishTime);
   const now = new Date();
+  const isNotStarted = now < start;
   return (
-    <ExpansionPanel expanded={isExpanded} onChange={onExpand}>
+    <ExpansionPanel disabled={isNotStarted} expanded={isExpanded} onChange={onExpand}>
       <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
         <div>
           <Typography variant='headline' >

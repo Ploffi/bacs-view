@@ -36,6 +36,8 @@ interface IContestBuilderState {
   contestInfo: ContestInfo;
   error: boolean;
   fetchAllProblemsPromise: Promise<any>;
+  filterName: string;
+  filterResourseId: string;
 }
 
 class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuilderState> {
@@ -48,6 +50,11 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
     finish.setHours(start.getHours() + 5);
 
     this.state = {
+      filterName: '',
+      filterResourseId: '',
+      fetchAllProblemsPromise: null,
+      allProblems: new Map(),
+      includeExternal: false,
       contestInfo: {
         startTime: start.toISOString(),
         finishTime: finish.toISOString(),
@@ -55,9 +62,6 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
         problems: [],
         id: null,
       },
-      fetchAllProblemsPromise: null,
-      allProblems: new Map(),
-      includeExternal: false,
       error: false,
     };
     this.handleProblemIndexChange = this.handleProblemIndexChange.bind(this);
@@ -123,12 +127,6 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
     );
   }
 
-  handleCheckboxChange = (event) => {
-    this.setState({
-      [event.target.name]: event.target.checked
-    });
-  }
-
   deleteContest = () => {
     contestApi.DeleteContest(this.state.contestInfo.id)
       .then(() => hashHistory.push('/admin/'));
@@ -136,12 +134,19 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
 
   render() {
     if (!authService.IsAdmin()) {
-      return null;
+      return <Typography variant='headline'>
+        Упс, кажется у вас недостаточно прав
+      </Typography>;
     }
     const { classes } = this.props;
-    const { contestInfo, allProblems, includeExternal, fetchAllProblemsPromise } = this.state;
+    const { contestInfo, allProblems, includeExternal, fetchAllProblemsPromise, filterName, filterResourseId } = this.state;
     const contestProblemsNamesSet = new Set(contestInfo.problems.map(p => hashByProblem(p)));
-    const otherProblems = Array.from(allProblems.values()).filter(p => !contestProblemsNamesSet.has(hashByProblem(p)));
+    const nameInlowerCase = filterName.toLowerCase(), resourseIdInLower = filterResourseId.toLowerCase();
+    const otherProblems = Array.from(allProblems.values())
+      .filter(p => !contestProblemsNamesSet.has(hashByProblem(p)))
+      .filter(problem => problem.name.toLowerCase().startsWith(nameInlowerCase))
+      .filter(problem => problem.problemId.resourceProblemId.toLowerCase().startsWith(resourseIdInLower));
+
     return (
       <Paper className={classes.container}>
         <div>
@@ -188,16 +193,31 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
           </div>
         </div>
         <div>
-            <ProblemTable
-              problems={otherProblems}
-              enhance={this.allProblemsEnhance}
-              fetchingPromsie={fetchAllProblemsPromise}
-              withPaging
-              withFilter
-            />
+          <div className={classes.allProblemsFiltersWrapper}>
+            <TextField name='filterName' onChange={this.handleFilterChange} value={filterName} placeholder='Фильтр по имени' />
+            <TextField name='filterResourseId' onChange={this.handleFilterChange} value={filterResourseId} placeholder='Фильтр по Resourse id' />
+          </div>
+          <ProblemTable
+            problems={otherProblems}
+            enhance={this.allProblemsEnhance}
+            fetchingPromsie={fetchAllProblemsPromise}
+            withPaging
+          />
         </div>
       </Paper >
     );
+  }
+
+  handleFilterChange = (event) => {
+    this.setState({
+      [event.target.name]: event.target.value,
+    })
+  }
+
+  handleCheckboxChange = (event) => {
+    this.setState({
+      [event.target.name]: event.target.checked
+    });
   }
 
   handleInfoChanged = (contestInfo: ContestInfo) => {
@@ -315,7 +335,15 @@ const styles: StyleRules = {
   },
   tableControl: {
     marginBottom: 5,
-  }
+  },
+  allProblemsFiltersWrapper: {
+    display: 'flex',
+    width: '100%',
+    justifyContent: 'center',
+    '& > div': {
+      marginRight: 35,
+    }
+  },
 };
 
 const hashByProblem = (p: ProblemInfo) => {

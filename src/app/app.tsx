@@ -1,7 +1,9 @@
 import { StyleRules, withStyles } from 'material-ui/styles';
 import * as React from 'react';
+import { Switch } from 'react-router';
 import { HashRouter as Router, Route } from 'react-router-dom';
 import Header from './header';
+import NoMatch from './nomatch';
 import Theme from './theme';
 import ContestBuilder from '../admin/contestBuilder';
 import Auth from '../auth/auth';
@@ -37,9 +39,12 @@ const App = (props: IAppProps) => (
           <Header />
           <div className={props.classes.main}>
             <div className={props.classes.contestListWrapper}>
-              <Route path='/' exact component={ContestList} />
-              <Route path='/admin/contest/:contestId?' component={ContestBuilder} />
-              <Route path='/contest/:contestId/' component={ContestController} />
+              <Switch>
+                <Route path='/' exact component={ContestList} />
+                <Route path='/admin/contest/:contestId?' component={ContestBuilder} />
+                <Route path='/contest/:contestId/' component={ContestController} />
+                <Route component={NoMatch} />
+              </Switch>
             </div>
           </div>
         </>
