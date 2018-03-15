@@ -81,7 +81,7 @@ class Submits extends React.Component<ISubmitProps, ISubmitState> {
               submissions
                 .map((submission) => (
                   <Fragment key={submission.id}>
-                    <TableRow style={{ cursor: 'pointer' }} onClick={this.toggleSolution(submission.id)}>
+                    <TableRow title={'id посылки: ' + submission.id} style={{ cursor: 'pointer' }} onClick={this.toggleSolution(submission.id)}>
                       {
                         enhance &&
                         enhance.map((add, index) => <TableCell key={index}>{add.renderCell(submission)}</TableCell>)
@@ -102,7 +102,7 @@ class Submits extends React.Component<ISubmitProps, ISubmitState> {
                       </TableCell>
                     </TableRow>
                     <TableRow style={{ visibility: this.state.opened[submission.id] ? 'visible' : 'collapse' }} >
-                      <TableCell colSpan={enhance.length + 4}>
+                      <TableCell colSpan={enhance ? enhance.length + 4 : 4}>
                         <Collapse in={this.state.opened[submission.id]}
                           timeout='auto'
                           unmountOnExit
