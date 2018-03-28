@@ -68,6 +68,7 @@ export enum Language {
   Python2 = 'Python 2',
   Python3 = 'Python 3',
   Mono = 'C# Mono',
+  Java = 'Java',
 }
 
 export namespace Language {
