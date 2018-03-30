@@ -24,7 +24,9 @@ interface ISubmitState {
   status: SentStatus;
 }
 
-const availableLanguages: string[] = Object.keys(Language).map(key => Language[key]);
+const availableLanguages: string[] = Object.keys(Language)
+  .filter(key => !key.startsWith('_'))
+  .map(key => Language[key]);
 
 enum SentStatus {
   Initial,
@@ -55,7 +57,7 @@ class SubmitForm extends React.Component<ISubmitProps, ISubmitState> {
     this.setState({
       status: SentStatus.Sending,
     })
-    const unFormattedLanguage = Language.keyOf(this.state.language);
+    const unFormattedLanguage = Language._keyOf(this.state.language);
     ContestApi.SubmitSolution(
       this.state.problemIndex,
       this.state.solution,

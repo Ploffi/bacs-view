@@ -72,7 +72,7 @@ export enum Language {
 }
 
 export namespace Language {
-  export function keyOf(language: Language) {
+  export function _keyOf(language: Language) {
     return Object.keys(Language).find(k => Language[k] === language);
   }
 }
