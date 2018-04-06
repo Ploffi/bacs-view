@@ -50,14 +50,14 @@ class Header extends React.Component<IHeaderProps, IHeaderState> {
   }
 
   componentDidMount() {
-    const info = AuthService.GetSessionInfo();
+    const info = AuthService.getSessionInfo();
     this.setState({
       sessionInfo: info,
     });
   }
 
   logout = () => {
-    AuthService.Logout();
+    AuthService.logout();
     window.location.reload(false);
   }
 

@@ -1,27 +1,27 @@
-import AddIcon from 'material-ui-icons/Add';
 import DeleteIcon from 'material-ui-icons/Delete';
-import Remove from 'material-ui-icons/Remove';
 import SaveIcon from 'material-ui-icons/Save';
 import Button from 'material-ui/Button';
 import Checkbox from 'material-ui/Checkbox';
 import { FormControlLabel } from 'material-ui/Form';
-import IconButton from 'material-ui/IconButton';
 import Paper from 'material-ui/Paper/Paper';
 import { StyleRules } from 'material-ui/styles';
 import withStyles from 'material-ui/styles/withStyles';
 import TextField from 'material-ui/TextField';
 import Typography from 'material-ui/Typography/Typography';
 import * as React from 'react';
+import { createAllProblemsEnhance, createContestProblemsEnhance } from './contestBuilder/problemTableEnhances';
 import ContestInfoEditer from './contestInfoEditor';
 import contestApi from '../api/contestApi';
 import problemsApi from '../api/problemsApi';
 import { hashHistory } from '../app/history';
 import authService from '../auth/authService';
+import { dateToISOFormat } from '../DateFormats';
 import ProblemTable from '../problem/problemTable';
 import {
   ArchiveProblem,
   ContestInfo,
   ContestProblem,
+  Enhance,
   ProblemInfo
   } from '../typings';
 
@@ -40,15 +40,24 @@ interface IContestBuilderState {
   filterResourseId: string;
 }
 
+
+const createDefaultContestTimes = (): { startTime: string, finishTime: string } => {
+  const start = new Date();
+  const finish = new Date();
+  finish.setHours(start.getHours() + 5);
+  return {
+    startTime: dateToISOFormat(start),
+    finishTime: dateToISOFormat(finish),
+  }
+};
+
 class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuilderState> {
   indexes = new Map<string, string>();
   catch = (e) => console.log(e) || this.setState({ error: true })
+  contestProblemsEnhance: Enhance<ProblemInfo>[];
+  allProblemsEnhance: Enhance<ProblemInfo>[];
   constructor(props) {
     super(props);
-    const start = new Date();
-    const finish = new Date();
-    finish.setHours(start.getHours() + 5);
-
     this.state = {
       filterName: '',
       filterResourseId: '',
@@ -56,8 +65,7 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
       allProblems: new Map(),
       includeExternal: false,
       contestInfo: {
-        startTime: start.toISOString(),
-        finishTime: finish.toISOString(),
+        ...createDefaultContestTimes(),
         name: '',
         problems: [],
         id: null,
@@ -65,12 +73,25 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
       error: false,
     };
     this.handleProblemIndexChange = this.handleProblemIndexChange.bind(this);
+    this.initializeEnhances();
+  }
+
+  private initializeEnhances() {
+    this.contestProblemsEnhance = createContestProblemsEnhance({ onRemoveClick: this.handleRemoveProblem });
+    this.allProblemsEnhance = createAllProblemsEnhance({
+      isProblemDisabled: (problem) => !this.indexes.get(hashByProblem(problem)),
+      onAddProblem: this.handleAddProblem,
+      getHashByProblem: hashByProblem,
+      getIndexByProblem: (problem) => this.indexes.get(hashByProblem(problem)),
+      onProblemIndexChange: this.handleProblemIndexChange,
+    })
   }
 
   fetchContestInfo = async (contestId) => {
     if (!contestId)
       return;
-    const contestInfo = await contestApi.GetContestInfo(contestId);
+
+    const contestInfo = await contestApi.GetContestInfo(contestId)
     this.setState({
       contestInfo
     });
@@ -83,7 +104,7 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
   private patchProblem = (problem) => {
     if (problem.problemId)
       return Promise.resolve(problem);
-    return problemsApi.GetArchiveProblem(problem.contestId, problem.index);
+    return problemsApi.getArchiveProblem(problem.contestId, problem.index);
   }
 
   private async patchProblems(problems: ContestProblem[]) {
@@ -101,7 +122,7 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
   }
 
   fetchAllProblems = () => {
-    const fetchAllProblemsPromise = problemsApi.GetProblems(this.state.includeExternal)
+    const fetchAllProblemsPromise = problemsApi.getProblems(this.state.includeExternal)
       .then(allProblems => {
         const hashes = allProblems.map(p => hashByProblem(p));
         this.setState({
@@ -113,6 +134,19 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
     this.setState({
       fetchAllProblemsPromise
     });
+  }
+
+  updateContest = (contestInfo: ContestInfo) => {
+    if (this.props.match.params.contestId)
+      return contestApi.EditContest(contestInfo);
+
+    return contestApi.CreateContest(contestInfo)
+      .then((id) => hashHistory.push('/admin/contest/' + id));
+  }
+
+  deleteContest = () => {
+    contestApi.DeleteContest(this.state.contestInfo.id)
+      .then(() => hashHistory.push('/admin/'));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -127,13 +161,8 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
     );
   }
 
-  deleteContest = () => {
-    contestApi.DeleteContest(this.state.contestInfo.id)
-      .then(() => hashHistory.push('/admin/'));
-  }
-
   render() {
-    if (!authService.IsAdmin()) {
+    if (!authService.isAdmin()) {
       return <Typography variant='headline'>
         Упс, кажется у вас недостаточно прав
       </Typography>;
@@ -269,60 +298,8 @@ class ContestBuilder extends React.Component<IContestBuilderProps, IContestBuild
     this.indexes.set(event.target.name, event.target.value);
     this.setState({});
   }
-
-  updateContest = (contestInfo: ContestInfo) => {
-    if (this.props.match.params.contestId)
-      return contestApi.EditContest(contestInfo);
-
-    return contestApi.CreateContest(contestInfo)
-      .then((id) => hashHistory.push('/admin/contest/' + id));
-  }
-
-  allProblemsEnhance = [
-    {
-      title: '',
-      width: 50,
-      renderCell: (problem: ArchiveProblem) => (
-        <IconButton disabled={!this.indexes.get(hashByProblem(problem))} onClick={this.handleAddProblem(problem)} >
-          <AddIcon />
-        </IconButton>
-      )
-    },
-    {
-      title: 'Индекс задачи',
-      width: 150,
-      key: (problem) => hashByProblem(problem),
-      renderCell: (problem: ArchiveProblem) => {
-        const index = this.indexes.get(hashByProblem(problem));
-        return <TextField
-          error={index === ''}
-          name={hashByProblem(problem)}
-          value={index}
-          onChange={this.handleProblemIndexChange}
-        />
-      },
-    },
-    {
-      title: 'Resourse Id',
-      renderCell: (problem: ArchiveProblem) => {
-        return problem && problem.problemId &&
-          <span>{
-            `${problem.problemId.resourceName}: ${problem.problemId.resourceProblemId}`
-          }</span>
-      },
-    },
-  ];
-
-  contestProblemsEnhance = [{
-    title: '',
-    width: 50,
-    renderCell: (problem: ContestProblem) => (
-      <IconButton onClick={this.handleRemoveProblem(problem)} >
-        <Remove />
-      </IconButton>
-    )
-  }]
 }
+
 
 const styles: StyleRules = {
   container: {

@@ -1,4 +1,5 @@
-import axios from 'axios';
+import { toCurrentDate } from './../DateFormats';
+import client from './client';
 import {
   ContestInfo,
   ContestProblem,
@@ -6,26 +7,31 @@ import {
   Submission
   } from '../typings';
 
-const defaultHeaders = {
-  'Content-Type': 'application/json',
-};
 
-axios.defaults.baseURL = 'https://bacs007.herokuapp.com/';
-axios.defaults.headers = defaultHeaders;
+const patchTimes = (patcher: (string) => string) => ({ startTime, finishTime, ...others }: ContestInfo): ContestInfo => ({
+  ...others,
+  startTime: patcher(startTime),
+  finishTime: patcher(finishTime),
+});
+
+const contestTimesToISO = patchTimes(date => new Date(date).toISOString());
+const contestTimesFromISO = patchTimes(toCurrentDate);
 
 const contestApi = {
-  GetContests(): Promise<ContestInfo[]> {
-    return axios.get('contests')
-      .then(response => response.data);
+  GetAllContests(): Promise<ContestInfo[]> {
+    return client.get('contests')
+      .then(response => response.data)
+      .then(infos => infos.map(contestTimesFromISO));
   },
 
   GetContestInfo(id: ContestInfo['id']): Promise<ContestInfo> {
-    return axios.get(`contests/${id}`)
-      .then(response => response.data);
+    return client.get(`contests/${id}`)
+      .then(response => response.data)
+      .then(contestInfo => contestTimesFromISO(contestInfo));
   },
 
   SubmitSolution(problemIndex: ContestProblem['index'], solution: string, language: string, contestId: ContestInfo['id']) {
-    return axios.post(`/submissions`, {
+    return client.post(`/submissions`, {
       language,
       solution,
       problemIndex,
@@ -34,12 +40,12 @@ const contestApi = {
   },
 
   GetStandings(contestId): Promise<Standings> {
-    return axios.get(`contests/${contestId}/standings`)
+    return client.get(`contests/${contestId}/standings`)
       .then(response => response.data);
   },
 
   GetUserSubmissions(contestId, author): Promise<Submission[]> {
-    return axios.get(`submissions`, {
+    return client.get(`submissions`, {
       params: {
         author,
         contestId
@@ -49,20 +55,22 @@ const contestApi = {
   },
 
   GetAllSubmissions(contestId): Promise<Submission[]> {
-    return axios.get(`/submissions?contestId=${contestId}`)
+    return client.get(`/submissions?contestId=${contestId}`)
       .then(response => response.data);
   },
 
   EditContest(contest: ContestInfo): Promise<any> {
-    return axios.put(`contests/${contest.id}`, contest).then(r => r.data);
+    const patched = contestTimesToISO(contest);
+    return client.put(`contests/${contest.id}`, patched).then(r => r.data);
   },
 
   CreateContest(contest: ContestInfo): Promise<any> {
-    return axios.post(`contests/`, contest).then(r => r.data);
+    const patched = contestTimesToISO(contest);
+    return client.post(`contests/`, patched).then(r => r.data);
   },
 
   DeleteContest(contestId): Promise<any> {
-    return axios.delete(`contests/${contestId}`);
+    return client.delete(`contests/${contestId}`);
   }
 }
 

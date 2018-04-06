@@ -35,28 +35,25 @@ const clearCookieParam = (paramName: string) => {
 const authCookieJWT = 'AuthBacsToken';
 const authHeaderName = 'authorization';
 
-export default class AuthService {
-  static SignUp(userData: RegisterUserinfo) {
-    return AuthApi.SignUp(userData).then();
-  }
-
-  static Auth(login: string, password: string): Promise<AuthStatus> {
-    return AuthApi.Auth(login, password)
+const authService = {
+  signUp(userData: RegisterUserinfo) {
+    return AuthApi.signUp(userData).then();
+  },
+  auth(login: string, password: string): Promise<AuthStatus> {
+    return AuthApi.auth(login, password)
       .then(response => {
         const token = response.headers[authHeaderName];
-        AuthApi.SetJWT(authHeaderName, token);
+        AuthApi.setHeader(authHeaderName, token);
         document.cookie = authCookieJWT + '=' + token;
         return AuthStatus.Success;
       })
       .catch(() => Promise.resolve(AuthStatus.Fail));
-  }
-
-  static GetSessionInfo(): SessionInfo {
+  },
+  getSessionInfo(): SessionInfo {
     const token = getFromCookies(authCookieJWT);
     return parseJwt(token);
-  }
-
-  static CheckAuth(): AuthStatus {
+  },
+  checkAuth(): AuthStatus {
     try {
       const token = getFromCookies(authCookieJWT);
       const info = parseJwt(token);
@@ -66,7 +63,7 @@ export default class AuthService {
 
       const now = new Date();
       if (expiresIn && now < expiresIn) {
-        AuthApi.SetJWT(authHeaderName, token);
+        AuthApi.setHeader(authHeaderName, token);
         return AuthStatus.Success;
       }
     }
@@ -74,15 +71,15 @@ export default class AuthService {
       console.log(e);
     }
     return AuthStatus.None;
-  }
-
-  static Logout() {
+  },
+  logout() {
     clearCookieParam(authCookieJWT);
-  }
-
-  static IsAdmin(sessionInfo?: SessionInfo): boolean {
+  },
+  isAdmin(sessionInfo?: SessionInfo): boolean {
     return (
-      sessionInfo || this.GetSessionInfo()
+      sessionInfo || this.getSessionInfo()
     ).roles.includes(UserRole.Admin);
   }
 }
+
+export default authService;

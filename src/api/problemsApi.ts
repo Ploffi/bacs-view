@@ -1,14 +1,14 @@
-import axios from 'axios';
+import client from './client';
 import { ArchiveProblem } from '../typings';
 
-class ProblemsApi {
-  static GetProblems(_?: boolean): Promise<ArchiveProblem[]> {
-    return axios.get('problems')
+const problemsApi = {
+  //TODO: включить external 
+  getProblems(_external?: boolean): Promise<ArchiveProblem[]> {
+    return client.get('problems')
       .then(response => response.data);
-  }
-
-  static GetArchiveProblem(contestId, problemIndex): Promise<ArchiveProblem> {
-    return axios.get('problems', {
+  },
+  getArchiveProblem(contestId, problemIndex): Promise<ArchiveProblem> {
+    return client.get('problems', {
       params: {
         contestId,
         problemIndex
@@ -17,4 +17,4 @@ class ProblemsApi {
   }
 }
 
-export default ProblemsApi;
+export default problemsApi;

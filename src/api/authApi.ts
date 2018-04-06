@@ -1,4 +1,5 @@
-import axios, { AxiosPromise } from 'axios';
+import { AxiosPromise } from 'axios';
+import client from './client';
 import { RegisterUserinfo } from '../typings';
 
 function getErrorsFromResponse(response) {
@@ -11,19 +12,18 @@ function getErrorsFromResponse(response) {
 }
 
 const authApi = {
-
-  SignUp(userData: RegisterUserinfo): AxiosPromise<any> {
-    return axios.post('/auth/register', { ...userData })
+  signUp(userData: RegisterUserinfo): AxiosPromise<any> {
+    return client.post('/auth/register', { ...userData })
       .catch(response => Promise.reject(getErrorsFromResponse(response)));
   },
 
-  Auth(username, password): AxiosPromise<any> {
-    return axios.post('/auth/login', { username, password })
+  auth(username, password): AxiosPromise<any> {
+    return client.post('/auth/login', { username, password })
       .catch(response => Promise.reject(getErrorsFromResponse(response)));
   },
 
-  SetJWT(headerName, headerValue): void {
-    axios.defaults.headers[headerName] = headerValue;
+  setHeader(headerName, headerValue): void {
+    client.defaults.headers[headerName] = headerValue;
   }
 }
 

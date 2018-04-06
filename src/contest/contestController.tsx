@@ -135,7 +135,7 @@ export default class ContestController extends React.Component<IContestControlle
     this.fetchContestInfo()
       .then(() => this.fetchBypageName());
     this.setState({
-      sessionInfo: AuthService.GetSessionInfo()
+      sessionInfo: AuthService.getSessionInfo()
     });
   }
 
@@ -146,7 +146,7 @@ export default class ContestController extends React.Component<IContestControlle
     const { currentTab, contestInfo, allSubmits, standing, userSubmits, sessionInfo } = this.state;
     const problems = contestInfo && contestInfo.problems || [];
     const current = match.url + '/';
-    const isAdmin = AuthService.IsAdmin(sessionInfo);
+    const isAdmin = AuthService.isAdmin(sessionInfo);
     const isContestFinished = contestInfo && new Date(contestInfo.finishTime) < new Date();
 
     return <div>

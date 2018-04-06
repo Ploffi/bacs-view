@@ -41,3 +41,14 @@ export const getDateDiff = (from: Date, to: Date, diffType = TimeDiffType.Day): 
 }
 
 
+export const dateToISOFormat = (date: Date) => [
+  [date.getFullYear(), date.getMonth() + 1, date.getDate()].map(padToTwoDigit).join('-'),
+  [date.getHours(), date.getMinutes(), date.getSeconds()].map(padToTwoDigit).join(':')
+].join('T');
+
+
+export const toCurrentDate = (date: string) => {
+  const d = new Date(date);
+  d.setMinutes(d.getMinutes() + (-d.getTimezoneOffset()));
+  return dateToISOFormat(d);
+}

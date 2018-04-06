@@ -14,7 +14,7 @@ class Auth extends React.Component<any, IAuthState> {
   constructor(props) {
     super(props);
     this.state = {
-      authStatus: AuthService.CheckAuth(),
+      authStatus: AuthService.checkAuth(),
       errors: [],
       isRegister: false,
     };
@@ -24,7 +24,7 @@ class Auth extends React.Component<any, IAuthState> {
     this.setState({
       authStatus: AuthStatus.Pending
     });
-    AuthService.SignUp(userData)
+    AuthService.signUp(userData)
       .then(() => this.tryAuthorize(userData.username, userData.password, true))
       .catch(errors => {
         this.setState({ errors: errors, authStatus: AuthStatus.Fail });
@@ -38,7 +38,7 @@ class Auth extends React.Component<any, IAuthState> {
       isRegister: false,
       authStatus: AuthStatus.Pending
     });
-    return AuthService.Auth(username, password)
+    return AuthService.auth(username, password)
       .then(authStatus => this.setState({ authStatus }))
       .catch(errors => this.setState({
         errors: errors,

@@ -90,7 +90,7 @@ class ContestInfoEditor extends React.Component<IContestInfoEditorProps, any> {
         />
         <TextField
           name='startTime'
-          type='time'         
+          type='time'
           onChange={this.handleChange}
           value={startTime}
           label='Время начала'
